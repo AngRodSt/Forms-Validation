@@ -2,12 +2,13 @@
 //Declarations
 const email = document.querySelector('#email');
 const subject = document.querySelector('#subject');
+const cc = document.querySelector('#cc');
 const messege = document.querySelector('#messege');
 const formulario = document.querySelector('#formulario');
 btnSend = document.querySelector('#formulario button[type="submit"]');
 btnReset = document.querySelector('#formulario button[type="reset"]');
 spinner = document.querySelector('#spinner');
-console.log(spinner);
+
 
 let mails = {
     email: '',
@@ -20,41 +21,54 @@ let mails = {
 email.addEventListener('input', validation);
 subject.addEventListener('input', validation);
 messege.addEventListener('input', validation);
+cc.addEventListener('input', validation);
 btnSend.addEventListener('click', sendEmail);
-btnReset.addEventListener('click', function(e){
+btnReset.addEventListener('click', function (e) {
     e.preventDefault();
     resetForm();
-    
+
 })
 
 
 //Functions
 function validation(e) {
+
     const ubication = e.target.parentElement;
+    const targetId = e.target.getAttribute('id');
+    const targetValue = e.target.value.trim();
+    const targetName = e.target.name;
 
     //Check if the field is blank
-    if (e.target.value.trim() === '') {
+    if (targetValue === '' && targetName != 'cc') {
         showAlert(`The ${e.target.getAttribute('id')} field is mandatory`, ubication);
         mails[e.target.name] = '';
         checkEmailFill();
         return;
     }
-    if (e.target.getAttribute('id') === 'email') {
+
+    if (targetId === 'email' || targetId === 'cc') {
         const result = checkValidEmail(e.target.value)
         if (!result) {
             showAlert(`The ${e.target.getAttribute('id')} field is invalid`, ubication);
             mails[e.target.name] = '';
             checkEmailFill();
+            if (targetValue === '' && targetId === 'cc') {
+                deleteAlert(e.target.parentElement);
+                if(mails.cc === ''){
+                    delete mails.cc;
+                }
+                checkEmailFill();
+            }
             return;
         }
     }
+
     deleteAlert(ubication);
 
     //Fill objet
     mails[e.target.name] = e.target.value.trim();
 
     checkEmailFill();
-    console.log(mails);
 }
 
 function showAlert(messege, ubication) {
@@ -92,7 +106,7 @@ function checkEmailFill() {
     btnSend.disabled = false;
 }
 
-function sendEmail(e){
+function sendEmail(e) {
     e.preventDefault();
     spinner.classList.remove('hidden');
     spinner.classList.add('flex');
@@ -106,19 +120,19 @@ function sendEmail(e){
         succesful.textContent = 'Email send succesful';
         succesful.classList.add('bg-green-600', 'text-white', 'p-2', 'text-center', 'succesful');
         formulario.appendChild(succesful);
-        
+
         setTimeout(() => {
-        succesful.remove();
+            succesful.remove();
         }, 3000);
     }, 3000);
 
 
 }
 
-function resetForm(){
-    mails.email='';
-    mails.subject='';
-    mails.messege='';
+function resetForm() {
+    mails.email = '';
+    mails.subject = '';
+    mails.messege = '';
 
     formulario.reset();
     checkEmailFill();
